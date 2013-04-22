@@ -13,6 +13,13 @@ namespace dlpc
 class DBN {
 
 public:
+  DBN(int, int, int*, int, int);
+  ~DBN();
+  void pretrain(int*, double, int, int);
+  void finetune(int*, int*, double, int);
+  void predict(int*, double*);
+  
+protected:
   int N;
   int n_ins;
   int *hidden_layer_sizes;
@@ -21,11 +28,6 @@ public:
   HiddenLayer **sigmoid_layers;
   RBM **rbm_layers;
   LogisticRegression *log_layer;
-  DBN(int, int, int*, int, int);
-  ~DBN();
-  void pretrain(int*, double, int, int);
-  void finetune(int*, int*, double, int);
-  void predict(int*, double*);
 };//end class DBN
 }//end namespace dlpc
 

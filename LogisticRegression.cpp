@@ -1,10 +1,12 @@
 #include "LogisticRegression.h"
 namespace dlpc
 {
-LogisticRegression::LogisticRegression(int size, int in, int out) {
-  N = size;
-  n_in = in;
-  n_out = out;
+LogisticRegression::LogisticRegression(int size, int in, int out) 
+  :N(size),n_in(in),n_out(out)
+{
+  //N = size;
+  //n_in = in;
+  //n_out = out;
 
   W = new double*[n_out];
   for(int i=0; i<n_out; i++) W[i] = new double[n_in];

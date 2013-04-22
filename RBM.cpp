@@ -1,10 +1,12 @@
 #include "RBM.h"
 namespace dlpc
 { 
-RBM::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb) {
-  N = size;
-  n_visible = n_v;
-  n_hidden = n_h;
+RBM::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
+  :N(size),n_visible(n_v),n_hidden(n_h)
+{
+  //N = size;
+  //n_visible = n_v;
+  //n_hidden = n_h;
 
   if(w == NULL) {
     W = new double*[n_hidden];

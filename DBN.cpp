@@ -2,14 +2,16 @@
 namespace dlpc
 {
 // DBN
-DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l) {
+DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l)
+  :N(size),n_ins(n_i),hidden_layer_sizes(hls),n_outs(n_o),n_layers(n_l)
+{
   int input_size;
   
-  N = size;
-  n_ins = n_i;
-  hidden_layer_sizes = hls;//vector
-  n_outs = n_o;
-  n_layers = n_l;//number of hidden layers
+  //N = size;
+  //n_ins = n_i;
+  //hidden_layer_sizes = hls;//vector
+  //n_outs = n_o;
+  //n_layers = n_l;//number of hidden layers
 
   sigmoid_layers = new HiddenLayer*[n_layers];//n_layers HiddenLayer
   rbm_layers = new RBM*[n_layers];

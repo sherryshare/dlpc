@@ -6,15 +6,19 @@ namespace dlpc
 class HiddenLayer {
 
 public:
-  int N;//batch size
-  int n_in;
+  HiddenLayer(int, int, int, double**, double*);
+  ~HiddenLayer();  
+  void sample_h_given_v(int*, int*);
+public:
+  int n_in;//any other way to change?
   int n_out;
   double **W;//vj->hi <=> w[i][j]
   double *b;
-  HiddenLayer(int, int, int, double**, double*);
-  ~HiddenLayer();
+protected:
   double output(int*, double*, double);
-  void sample_h_given_v(int*, int*);
+protected:
+  int N;//batch size
+
 };//end class HiddenLayer
 }//end namespace dlpc
 
