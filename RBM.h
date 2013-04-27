@@ -17,7 +17,7 @@ protected:
   double propdown(int*, int, double);
   void gibbs_hvh(int*, double*, int*, double*, int*);
 protected:
-  int N;
+  int batch_size;
   int n_visible;
   int n_hidden;
   double **W;

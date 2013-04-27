@@ -2,11 +2,8 @@
 namespace dlpc
 {
 HiddenLayer::HiddenLayer(int size, int in, int out, double **w, double *bp)
-  :N(size),n_in(in),n_out(out)
+  :batch_size(size),n_in(in),n_out(out)
 {
-  //N = size;
-  //n_in = in;
-  //n_out = out;
 
   if(w == NULL) {
     W = new double*[n_out];

@@ -17,7 +17,7 @@ public:
 protected:
   double output(int*, double*, double);
 protected:
-  int N;//batch size
+  int batch_size;//batch size
 
 };//end class HiddenLayer
 }//end namespace dlpc

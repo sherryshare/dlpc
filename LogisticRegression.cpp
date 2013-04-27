@@ -2,12 +2,8 @@
 namespace dlpc
 {
 LogisticRegression::LogisticRegression(int size, int in, int out) 
-  :N(size),n_in(in),n_out(out)
+  :batch_size(size),n_in(in),n_out(out)
 {
-  //N = size;
-  //n_in = in;
-  //n_out = out;
-
   W = new double*[n_out];
   for(int i=0; i<n_out; i++) W[i] = new double[n_in];
   b = new double[n_out];
@@ -44,10 +40,10 @@ void LogisticRegression::train(int *x, int *y, double lr) {
     dy[i] = y[i] - p_y_given_x[i];
 
     for(int j=0; j<n_in; j++) {
-      W[i][j] += lr * dy[i] * x[j] / N;
+      W[i][j] += lr * dy[i] * x[j] / batch_size;
     }
 
-    b[i] += lr * dy[i] / N;
+    b[i] += lr * dy[i] / batch_size;
   }
   
   delete[] p_y_given_x;

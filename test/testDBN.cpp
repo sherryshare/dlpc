@@ -10,8 +10,8 @@ void test_dbn() {
   double finetune_lr = 0.1;
   int finetune_epochs = 500;
 
-  int train_N = 6;//training inputs vector number
-  int test_N = 3;//testing inputs vector number
+  int train_batch_size = 6;//training inputs vector number
+  int test_batch_size = 3;//testing inputs vector number
   int n_ins = 6;
   int n_outs = 2;
   int hidden_layer_sizes[] = {3, 3};
@@ -39,7 +39,7 @@ void test_dbn() {
 
   
   // construct DBN
-  DBN dbn(train_N, n_ins, hidden_layer_sizes, n_outs, n_layers);
+  DBN dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
   // pretrain
   dbn.pretrain(*train_X, pretrain_lr, k, pretraining_epochs);
@@ -59,7 +59,7 @@ void test_dbn() {
 
 
   // test
-  for(int i=0; i<test_N; i++) {
+  for(int i=0; i<test_batch_size; i++) {
     dbn.predict(test_X[i], test_Y[i]);
     for(int j=0; j<n_outs; j++) {
       std::cout << test_Y[i][j] << " ";

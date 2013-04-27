@@ -2,12 +2,8 @@
 namespace dlpc
 { 
 RBM::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
-  :N(size),n_visible(n_v),n_hidden(n_h)
+  :batch_size(size),n_visible(n_v),n_hidden(n_h)
 {
-  //N = size;
-  //n_visible = n_v;
-  //n_hidden = n_h;
-
   if(w == NULL) {
     W = new double*[n_hidden];
     for(int i=0; i<n_hidden; i++) W[i] = new double[n_visible];
@@ -66,13 +62,13 @@ void RBM::contrastive_divergence(int *input, double lr, int k) {//lr learning ra
 
   for(int i=0; i<n_hidden; i++) {//only for CD-1 -- wrong! CD-k only needs the first step reconstruction data for weights & bias
     for(int j=0; j<n_visible; j++) {
-      W[i][j] += lr * (ph_sample[i] * input[j] - nh_means[i] * nv_samples[j]) / N;//change weights
+      W[i][j] += lr * (ph_sample[i] * input[j] - nh_means[i] * nv_samples[j]) / batch_size;//change weights
     }
-    hbias[i] += lr * (ph_sample[i] - nh_means[i]) / N;//nh_means=Q(h1=1|v1),ph_sample=h0,input=v0',nv_samples=v1'
+    hbias[i] += lr * (ph_sample[i] - nh_means[i]) / batch_size;//nh_means=Q(h1=1|v1),ph_sample=h0,input=v0',nv_samples=v1'
   }
 
-  for(int i=0; i<n_visible; i++) {//numpy.mean, to get the mean value,so we divide it by N
-    vbias[i] += lr * (input[i] - nv_samples[i]) / N;//vi'=vi -- N groups of data, thus vi is changed
+  for(int i=0; i<n_visible; i++) {//numpy.mean, to get the mean value,so we divide it by batch_size
+    vbias[i] += lr * (input[i] - nv_samples[i]) / batch_size;//vi'=vi -- batch_size groups of data, thus vi is changed
   }
 
   delete[] ph_mean;

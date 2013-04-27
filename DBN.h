@@ -20,7 +20,7 @@ public:
   void predict(int*, double*);
   
 protected:
-  int N;
+  int batch_size;
   int n_ins;
   int *hidden_layer_sizes;
   int n_outs;

@@ -11,15 +11,14 @@ public:
   ~LogisticRegression();
   void train(int*, int*, double);
   void softmax(double*);
+  void predict(int*, double*);
 public:
   int n_in;
   int n_out;
   double **W;
-  double *b;
+  double *b;  
 protected:
-  void predict(int*, double*);
-protected:
-  int N;  // num of inputs
+  int batch_size;  // num of inputs
 };//end class LogisticRegression
 }//end namespace dlpc
 

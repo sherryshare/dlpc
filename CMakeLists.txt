@@ -15,6 +15,8 @@ set(src DBN.cpp
 	RBM.cpp
 	LogisticRegression.cpp
 	HiddenLayer.cpp
+	SdA.cpp
+	dA.cpp
 )
 
 add_library(dlpc_dynamic SHARED ${src})

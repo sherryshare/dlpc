@@ -1,14 +1,11 @@
-#include "DBN.h"
-namespace dlpc
-{
-// DBN
-DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l)
-  :batch_size(size),n_ins(n_i),hidden_layer_sizes(hls),n_outs(n_o),n_layers(n_l)
+#include "SdA.h"
+namespace dlpc{
+SdA::SdA(int size, int n_i, int *hls, int n_o, int n_l)
+  :N(size),n_ins(n_i),hidden_layer_sizes(hls),n_outs(n_o),n_layers(n_l)
 {
   int input_size;
-
-  sigmoid_layers = new HiddenLayer*[n_layers];//n_layers HiddenLayer
-  rbm_layers = new RBM*[n_layers];
+  sigmoid_layers = new HiddenLayer*[n_layers];
+  dA_layers = new dA*[n_layers];
 
   // construct multi-layer
   for(int i=0; i<n_layers; i++) {
@@ -18,31 +15,30 @@ DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l)
       input_size = hidden_layer_sizes[i-1];
     }
 
-    // construct sigmoid_layer//output size equals node size
-    sigmoid_layers[i] = new HiddenLayer(batch_size, input_size, hidden_layer_sizes[i], NULL, NULL);
+    // construct sigmoid_layer
+    sigmoid_layers[i] = new HiddenLayer(N, input_size, hidden_layer_sizes[i], NULL, NULL);
 
-    // construct rbm_layer
-    rbm_layers[i] = new RBM(batch_size, input_size, hidden_layer_sizes[i],
-                            sigmoid_layers[i]->W, sigmoid_layers[i]->b, NULL);
+    // construct dA_layer
+    dA_layers[i] = new dA(N, input_size, hidden_layer_sizes[i],
+                          sigmoid_layers[i]->W, sigmoid_layers[i]->b, NULL);
   }
 
   // layer for output using LogisticRegression
-  log_layer = new LogisticRegression(batch_size, hidden_layer_sizes[n_layers-1], n_outs);
+  log_layer = new LogisticRegression(N, hidden_layer_sizes[n_layers-1], n_outs);
 }
 
-DBN::~DBN() {
+SdA::~SdA() {
   delete log_layer;
-
   for(int i=0; i<n_layers; i++) {
     delete sigmoid_layers[i];
-    delete rbm_layers[i];
+    delete dA_layers[i];
+    
   }
   delete[] sigmoid_layers;
-  delete[] rbm_layers;
+  delete[] dA_layers;
 }
 
-
-void DBN::pretrain(int *input, double lr, int k, int epochs) {
+void SdA::pretrain(int *input, double lr, double corruption_level, int epochs) {
   int *layer_input;
   int prev_layer_input_size;
   int *prev_layer_input;
@@ -53,9 +49,9 @@ void DBN::pretrain(int *input, double lr, int k, int epochs) {
 
     for(int epoch=0; epoch<epochs; epoch++) {  // training epochs
 
-      for(int n=0; n<batch_size; n++) { // input x1...xbatch_size
+      for(int n=0; n<N; n++) { // input x1...xN
         // initial input
-        for(int m=0; m<n_ins; m++) train_X[m] = input[n * n_ins + m];//get the train_X[n][m] from user inputs
+        for(int m=0; m<n_ins; m++) train_X[m] = input[n * n_ins + m];
 
         // layer input
         for(int l=0; l<=i; l++) {
@@ -68,19 +64,19 @@ void DBN::pretrain(int *input, double lr, int k, int epochs) {
             else prev_layer_input_size = hidden_layer_sizes[l-2];
 
             prev_layer_input = new int[prev_layer_input_size];
-            for(int j=0; j<prev_layer_input_size; j++) prev_layer_input[j] = layer_input[j];//record the prev_layer_input vector
+            for(int j=0; j<prev_layer_input_size; j++) prev_layer_input[j] = layer_input[j];
             delete[] layer_input;
 
             layer_input = new int[hidden_layer_sizes[l-1]];
 
-            sigmoid_layers[l-1]->sample_h_given_v(prev_layer_input, layer_input);//get the new hidden layer values
+            sigmoid_layers[l-1]->sample_h_given_v(prev_layer_input, layer_input);
             delete[] prev_layer_input;
           }
-        }//caculate all the hidden layer values
+        }
 
-        rbm_layers[i]->contrastive_divergence(layer_input, lr, k);
+        dA_layers[i]->train(layer_input, lr, corruption_level);
+
       }
-
     }
   }
 
@@ -88,16 +84,16 @@ void DBN::pretrain(int *input, double lr, int k, int epochs) {
   delete[] layer_input;
 }
 
-void DBN::finetune(int *input, int *label, double lr, int epochs) {
+void SdA::finetune(int *input, int *label, double lr, int epochs) {
   int *layer_input;
-  // int prev_layer_input_size;
+  int prev_layer_input_size;
   int *prev_layer_input;
 
   int *train_X = new int[n_ins];
   int *train_Y = new int[n_outs];
 
   for(int epoch=0; epoch<epochs; epoch++) {
-    for(int n=0; n<batch_size; n++) { // input x1...xbatch_size
+    for(int n=0; n<N; n++) { // input x1...xN
       // initial input
       for(int m=0; m<n_ins; m++)  train_X[m] = input[n * n_ins + m];
       for(int m=0; m<n_outs; m++) train_Y[m] = label[n * n_outs + m];
@@ -129,9 +125,9 @@ void DBN::finetune(int *input, int *label, double lr, int epochs) {
   delete[] train_Y;
 }
 
-void DBN::predict(int *x, double *y) {
+void SdA::predict(int *x, double *y) {
   double *layer_input;
-  // int prev_layer_input_size;
+  int prev_layer_input_size;
   double *prev_layer_input;
 
   double linear_output;
@@ -175,3 +171,4 @@ void DBN::predict(int *x, double *y) {
 }
 
 }//end namespace dlpc
+
