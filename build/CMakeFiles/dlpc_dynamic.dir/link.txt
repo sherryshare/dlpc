@@ -1,1 +1,0 @@
-/usr/local/bin/g++  -fPIC    -shared -Wl,-soname,libdlpc.so -o ../lib/libdlpc.so CMakeFiles/dlpc_dynamic.dir/DBN.cpp.o CMakeFiles/dlpc_dynamic.dir/RBM.cpp.o CMakeFiles/dlpc_dynamic.dir/LogisticRegression.cpp.o CMakeFiles/dlpc_dynamic.dir/HiddenLayer.cpp.o CMakeFiles/dlpc_dynamic.dir/SdA.cpp.o CMakeFiles/dlpc_dynamic.dir/dA.cpp.o  -L/home/sherry/projects/dlpc/lib 

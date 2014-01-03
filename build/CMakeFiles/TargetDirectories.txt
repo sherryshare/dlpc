@@ -1,2 +1,0 @@
-/home/sherry/projects/dlpc/build/CMakeFiles/dlpc_dynamic.dir
-/home/sherry/projects/dlpc/build/CMakeFiles/dlpc_static.dir

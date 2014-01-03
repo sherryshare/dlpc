@@ -1,1 +1,0 @@
-/usr/local/bin/g++       CMakeFiles/test.dir/testDBN.cpp.o  -o test  -L/home/sherry/dlpc/lib -rdynamic -ldlpc -Wl,-rpath,/home/sherry/dlpc/lib 

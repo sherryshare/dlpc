@@ -1,2 +1,0 @@
-/usr/bin/ar cr ../lib/libdlpc.a  CMakeFiles/dlpc_static.dir/DBN.cpp.o CMakeFiles/dlpc_static.dir/RBM.cpp.o CMakeFiles/dlpc_static.dir/LogisticRegression.cpp.o CMakeFiles/dlpc_static.dir/HiddenLayer.cpp.o CMakeFiles/dlpc_static.dir/SdA.cpp.o CMakeFiles/dlpc_static.dir/dA.cpp.o
-/usr/bin/ranlib ../lib/libdlpc.a
