@@ -62,7 +62,8 @@ void RBM::contrastive_divergence(int *input, double lr, int k) {//lr learning ra
 
   for(int i=0; i<n_hidden; i++) {//only for CD-1 -- wrong! CD-k only needs the first step reconstruction data for weights & bias
     for(int j=0; j<n_visible; j++) {
-      W[i][j] += lr * (ph_sample[i] * input[j] - nh_means[i] * nv_samples[j]) / batch_size;//change weights
+      //W[i][j] += lr * (ph_sample[i] * input[j] - nh_means[i] * nv_samples[j]) / batch_size;//change weights
+      W[i][j] += lr * (ph_mean[i] * input[j] - nh_means[i] * nv_samples[j]) / batch_size;//altered based on yusugomori
     }
     hbias[i] += lr * (ph_sample[i] - nh_means[i]) / batch_size;//nh_means=Q(h1=1|v1),ph_sample=h0,input=v0',nv_samples=v1'
   }

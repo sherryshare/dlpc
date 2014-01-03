@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
-project(test)
+MESSAGE(STATUS "This is SOURCE dir" ${PROJECT_SOURCE_DIR})
+PROJECT(test)
 
 
 
-####Specify the path of ffdv/net
 set(DLPC_ROOT_DIR /home/sherry/dlpc)
 
 
@@ -13,7 +13,7 @@ include_directories(${PROJECT_SOURCE_DIR} ${DLPC_ROOT_DIR})
 link_directories(${DLPC_ROOT_DIR}/lib)
 
 
-set(src testSdA.cpp)
+set(src testDBN.cpp)
 
 add_executable(test ${src})
 target_link_libraries(test dlpc)
