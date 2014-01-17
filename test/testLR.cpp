@@ -53,7 +53,7 @@ void test_lr() {
 
 
   // construct LogisticRegression
-  LogisticRegression classifier(train_N, n_in, n_out);
+  LogisticRegression<int,int> classifier(train_N, n_in, n_out);
 
 
   // train online

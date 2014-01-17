@@ -1,11 +1,15 @@
+#ifndef DLPC_SDA_CPP_
+#define DLPC_SDA_CPP_
+
 #include "SdA.h"
 namespace dlpc{
-SdA::SdA(int size, int n_i, int *hls, int n_o, int n_l)
+template<class T1,class T2>
+SdA<T1,T2>::SdA(int size, int n_i, int *hls, int n_o, int n_l)
   :N(size),n_ins(n_i),hidden_layer_sizes(hls),n_outs(n_o),n_layers(n_l)
 {
   int input_size;
-  sigmoid_layers = new HiddenLayer*[n_layers];
-  dA_layers = new dA*[n_layers];
+  sigmoid_layers = new HiddenLayer<T1>*[n_layers];
+  dA_layers = new dA<T1>*[n_layers];
 
   // construct multi-layer
   for(int i=0; i<n_layers; i++) {
@@ -16,18 +20,19 @@ SdA::SdA(int size, int n_i, int *hls, int n_o, int n_l)
     }
 
     // construct sigmoid_layer
-    sigmoid_layers[i] = new HiddenLayer(N, input_size, hidden_layer_sizes[i], NULL, NULL);
+    sigmoid_layers[i] = new HiddenLayer<T1>(N, input_size, hidden_layer_sizes[i], NULL, NULL);
 
     // construct dA_layer
-    dA_layers[i] = new dA(N, input_size, hidden_layer_sizes[i],
+    dA_layers[i] = new dA<T1>(N, input_size, hidden_layer_sizes[i],
                           sigmoid_layers[i]->W, sigmoid_layers[i]->b, NULL);
   }
 
   // layer for output using LogisticRegression
-  log_layer = new LogisticRegression(N, hidden_layer_sizes[n_layers-1], n_outs);
+  log_layer = new LogisticRegression<T1,T2>(N, hidden_layer_sizes[n_layers-1], n_outs);
 }
 
-SdA::~SdA() {
+template<class T1,class T2>
+SdA<T1,T2>::~SdA() {
   delete log_layer;
   for(int i=0; i<n_layers; i++) {
     delete sigmoid_layers[i];
@@ -38,12 +43,13 @@ SdA::~SdA() {
   delete[] dA_layers;
 }
 
-void SdA::pretrain(int *input, double lr, double corruption_level, int epochs) {
-  int *layer_input;
+template<class T1,class T2>
+void SdA<T1,T2>::pretrain(T1 *input, double lr, double corruption_level, int epochs) {
+  T1 *layer_input;
   int prev_layer_input_size;
-  int *prev_layer_input;
+  T1 *prev_layer_input;
 
-  int *train_X = new int[n_ins];
+  T1 *train_X = new T1[n_ins];
 
   for(int i=0; i<n_layers; i++) {  // layer-wise
 
@@ -57,17 +63,17 @@ void SdA::pretrain(int *input, double lr, double corruption_level, int epochs) {
         for(int l=0; l<=i; l++) {
 
           if(l == 0) {
-            layer_input = new int[n_ins];
+            layer_input = new T1[n_ins];
             for(int j=0; j<n_ins; j++) layer_input[j] = train_X[j];
           } else {
             if(l == 1) prev_layer_input_size = n_ins;
             else prev_layer_input_size = hidden_layer_sizes[l-2];
 
-            prev_layer_input = new int[prev_layer_input_size];
+            prev_layer_input = new T1[prev_layer_input_size];
             for(int j=0; j<prev_layer_input_size; j++) prev_layer_input[j] = layer_input[j];
             delete[] layer_input;
 
-            layer_input = new int[hidden_layer_sizes[l-1]];
+            layer_input = new T1[hidden_layer_sizes[l-1]];
 
             sigmoid_layers[l-1]->sample_h_given_v(prev_layer_input, layer_input);
             delete[] prev_layer_input;
@@ -84,13 +90,14 @@ void SdA::pretrain(int *input, double lr, double corruption_level, int epochs) {
   delete[] layer_input;
 }
 
-void SdA::finetune(int *input, int *label, double lr, int epochs) {
-  int *layer_input;
+template<class T1,class T2>
+void SdA<T1,T2>::finetune(T1 *input, T2 *label, double lr, int epochs) {
+  T1 *layer_input;
   int prev_layer_input_size;
-  int *prev_layer_input;
+  T1 *prev_layer_input;
 
-  int *train_X = new int[n_ins];
-  int *train_Y = new int[n_outs];
+  T1 *train_X = new T1[n_ins];
+  T2 *train_Y = new T2[n_outs];
 
   for(int epoch=0; epoch<epochs; epoch++) {
     for(int n=0; n<N; n++) { // input x1...xN
@@ -101,16 +108,16 @@ void SdA::finetune(int *input, int *label, double lr, int epochs) {
       // layer input
       for(int i=0; i<n_layers; i++) {
         if(i == 0) {
-          prev_layer_input = new int[n_ins];
+          prev_layer_input = new T1[n_ins];
           for(int j=0; j<n_ins; j++) prev_layer_input[j] = train_X[j];
         } else {
-          prev_layer_input = new int[hidden_layer_sizes[i-1]];
+          prev_layer_input = new T1[hidden_layer_sizes[i-1]];
           for(int j=0; j<hidden_layer_sizes[i-1]; j++) prev_layer_input[j] = layer_input[j];
           delete[] layer_input;
         }
 
 
-        layer_input = new int[hidden_layer_sizes[i]];
+        layer_input = new T1[hidden_layer_sizes[i]];
         sigmoid_layers[i]->sample_h_given_v(prev_layer_input, layer_input);
         delete[] prev_layer_input;
       }
@@ -125,7 +132,8 @@ void SdA::finetune(int *input, int *label, double lr, int epochs) {
   delete[] train_Y;
 }
 
-void SdA::predict(int *x, double *y) {
+template<class T1,class T2>
+void SdA<T1,T2>::predict(T1 *x, double *y) {
   double *layer_input;
   int prev_layer_input_size;
   double *prev_layer_input;
@@ -173,3 +181,4 @@ void SdA::predict(int *x, double *y) {
 
 }//end namespace dlpc
 
+#endif

@@ -3,15 +3,16 @@
 #include <math.h>
 #include "utils.h"
 namespace dlpc{
+template<class T>
 class dA {
 public:
   dA(int, int, int , double**, double*, double*);
   ~dA(); 
-  void train(int*, double, double);  
-  void reconstruct(int*, double*);
+  void train(T*, double, double);  
+  void reconstruct(T*, double*);
 protected:
-  void get_corrupted_input(int*, int*, double);
-  void get_hidden_values(int*, double*);
+  void get_corrupted_input(T*, T*, double);
+  void get_hidden_values(T*, double*);
   void get_reconstructed_input(double*, double*);
 public:
   double **W;
@@ -24,4 +25,5 @@ protected:
 };//end class dA
 }//end namespace dlpc
 
+#include <dA.cpp>
 #endif

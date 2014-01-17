@@ -27,7 +27,7 @@ void test_rbm() {
 
 
   // construct RBM
-  RBM rbm(train_N, n_visible, n_hidden, NULL, NULL, NULL);
+  RBM<int> rbm(train_N, n_visible, n_hidden, NULL, NULL, NULL);
 
   // train
   for(int epoch=0; epoch<training_epochs; epoch++) {

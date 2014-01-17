@@ -3,15 +3,16 @@
 #include "utils.h"
 namespace dlpc
 {
+template<class T1,class T2>
 class LogisticRegression {
 
 public:
 
   LogisticRegression(int, int, int);
   ~LogisticRegression();
-  void train(int*, int*, double);
+  void train(T1*, T2*, double);
   void softmax(double*);
-  void predict(int*, double*);
+  void predict(T1*, double*);
 public:
   int n_in;
   int n_out;
@@ -22,4 +23,5 @@ protected:
 };//end class LogisticRegression
 }//end namespace dlpc
 
+#include <LogisticRegression.cpp>
 #endif

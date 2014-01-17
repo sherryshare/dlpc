@@ -30,7 +30,7 @@ void test_dA() {
   };
 
   // construct dA
-  dA da(train_N, n_visible, n_hidden, NULL, NULL, NULL);
+  dA<int> da(train_N, n_visible, n_hidden, NULL, NULL, NULL);
 
   // train
   for(int epoch=0; epoch<training_epochs; epoch++) {

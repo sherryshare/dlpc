@@ -1,7 +1,11 @@
+#ifndef DLPC_RBM_CPP_
+#define DLPC_RBM_CPP_
+
 #include "RBM.h"
 namespace dlpc
 { 
-RBM::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
+template <class T>
+RBM<T>::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
   :batch_size(size),n_visible(n_v),n_hidden(n_h)
 {
   if(w == NULL) {
@@ -33,15 +37,16 @@ RBM::RBM(int size, int n_v, int n_h, double **w, double *hb, double *vb)
   }
 }
 
-RBM::~RBM() {
+template <class T>
+RBM<T>::~RBM() {
   // for(int i=0; i<n_hidden; i++) delete[] W[i];
   // delete[] W;
   // delete[] hbias;
   delete[] vbias;
 }
 
-
-void RBM::contrastive_divergence(int *input, double lr, int k) {//lr learning rate
+template<class T> 
+void RBM<T>::contrastive_divergence(T *input, double lr, int k) {//lr learning rate
   double *ph_mean = new double[n_hidden];//sigmoid first h
   int *ph_sample = new int[n_hidden];//binary first h
   double *nv_means = new double[n_visible];//sigmoid v
@@ -80,21 +85,24 @@ void RBM::contrastive_divergence(int *input, double lr, int k) {//lr learning ra
   delete[] nh_samples;
 }
 
-void RBM::sample_h_given_v(int *v0_sample, double *mean, int *sample) {
+template<class T> 
+void RBM<T>::sample_h_given_v(T *v0_sample, double *mean, T *sample) {
   for(int i=0; i<n_hidden; i++) {
     mean[i] = propup(v0_sample, W[i], hbias[i]);
     sample[i] = binomial(1, mean[i]);//to binary
   }
 }
 
-void RBM::sample_v_given_h(int *h0_sample, double *mean, int *sample) {
+template<class T> 
+void RBM<T>::sample_v_given_h(T *h0_sample, double *mean, T *sample) {
   for(int i=0; i<n_visible; i++) {
     mean[i] = propdown(h0_sample, i, vbias[i]);//sigmoid results
     sample[i] = binomial(1, mean[i]);//binary results
   }
 }
 
-double RBM::propup(int *v, double *w, double b) {//h[i]=b+w[j]*v[j](j=0->n_visible-1) (row)
+template<class T> 
+double RBM<T>::propup(T *v, double *w, double b) {//h[i]=b+w[j]*v[j](j=0->n_visible-1) (row)
   double pre_sigmoid_activation = 0.0;
   for(int j=0; j<n_visible; j++) {
     pre_sigmoid_activation += w[j] * v[j];
@@ -103,7 +111,8 @@ double RBM::propup(int *v, double *w, double b) {//h[i]=b+w[j]*v[j](j=0->n_visib
   return sigmoid(pre_sigmoid_activation);//HiddenLayer::sample_h_given_v
 }
 
-double RBM::propdown(int *h, int i, double b) {//v_given_h (column)
+template<class T> 
+double RBM<T>::propdown(T *h, int i, double b) {//v_given_h (column)
   double pre_sigmoid_activation = 0.0;
   for(int j=0; j<n_hidden; j++) {
     pre_sigmoid_activation += W[j][i] * h[j];
@@ -112,13 +121,15 @@ double RBM::propdown(int *h, int i, double b) {//v_given_h (column)
   return sigmoid(pre_sigmoid_activation);
 }
 
-void RBM::gibbs_hvh(int *h0_sample, double *nv_means, int *nv_samples, 
-                    double *nh_means, int *nh_samples) {//in,out,out-in,out,out
+template<class T> 
+void RBM<T>::gibbs_hvh(T *h0_sample, double *nv_means, T *nv_samples, 
+                    double *nh_means, T *nh_samples) {//in,out,out-in,out,out
   sample_v_given_h(h0_sample, nv_means, nv_samples);//in,out,out
   sample_h_given_v(nv_samples, nh_means, nh_samples);//in,out,out
 }
 
-void RBM::reconstruct(int *v, double *reconstructed_v) {
+template<class T> 
+void RBM<T>::reconstruct(T *v, double *reconstructed_v) {
   double *h = new double[n_hidden];
   double pre_sigmoid_activation;
 
@@ -141,3 +152,5 @@ void RBM::reconstruct(int *v, double *reconstructed_v) {
 }
 
 }//end namespace dlpc
+
+#endif

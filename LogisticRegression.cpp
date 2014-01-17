@@ -1,7 +1,10 @@
+#ifndef DLPC_LOGISTICREGRESSION_CPP_
+#define DLPC_LOGISTICREGRESSION_CPP_
 #include "LogisticRegression.h"
 namespace dlpc
 {
-LogisticRegression::LogisticRegression(int size, int in, int out) 
+template<class T1,class T2>
+LogisticRegression<T1,T2>::LogisticRegression(int size, int in, int out) 
   :batch_size(size),n_in(in),n_out(out)
 {
   W = new double*[n_out];
@@ -16,14 +19,15 @@ LogisticRegression::LogisticRegression(int size, int in, int out)
   }
 }
 
-LogisticRegression::~LogisticRegression() {
+template<class T1,class T2>
+LogisticRegression<T1,T2>::~LogisticRegression() {
   for(int i=0; i<n_out; i++) delete[] W[i];
   delete[] W;
   delete[] b;
 }
 
-
-void LogisticRegression::train(int *x, int *y, double lr) {
+template<class T1,class T2>
+void LogisticRegression<T1,T2>::train(T1 *x, T2 *y, double lr) {
   double *p_y_given_x = new double[n_out];
   double *dy = new double[n_out];
 
@@ -50,7 +54,8 @@ void LogisticRegression::train(int *x, int *y, double lr) {
   delete[] dy;
 }
 
-void LogisticRegression::softmax(double *x) {
+template<class T1,class T2>
+void LogisticRegression<T1,T2>::softmax(double *x) {
   double max = 0.0;
   double sum = 0.0;
   
@@ -63,7 +68,8 @@ void LogisticRegression::softmax(double *x) {
   for(int i=0; i<n_out; i++) x[i] /= sum;
 }
 
-void LogisticRegression::predict(int *x, double *y) {
+template<class T1,class T2>
+void LogisticRegression<T1,T2>::predict(T1 *x, double *y) {
   for(int i=0; i<n_out; i++) {
     y[i] = 0;
     for(int j=0; j<n_in; j++) {
@@ -75,3 +81,5 @@ void LogisticRegression::predict(int *x, double *y) {
   softmax(y);
 }
 }//end namespace dlpc
+
+#endif

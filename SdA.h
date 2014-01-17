@@ -5,20 +5,25 @@
 #include "dA.h"
 #include "LogisticRegression.h"
 namespace dlpc{
+template<class T1,class T2>
   class LogisticRegression;
+template<class T>
   class HiddenLayer;
+template<class T>
+  class dA;
+template<class T1,class T2>
 class SdA {
 public:  
   SdA(int, int, int*, int, int);
   ~SdA();
-  void pretrain(int*, double, double, int);
-  void finetune(int*, int*, double, int);
-  void predict(int*, double*);
+  void pretrain(T1*, double, double, int);
+  void finetune(T1*, T2*, double, int);
+  void predict(T1*, double*);
 public:
   int *hidden_layer_sizes;
-  HiddenLayer **sigmoid_layers;
-  dA **dA_layers;
-  LogisticRegression *log_layer;
+  HiddenLayer<T1> **sigmoid_layers;
+  dA<T1> **dA_layers;
+  LogisticRegression<T1,T2> *log_layer;
 protected:
   int N;
   int n_ins;  
@@ -26,4 +31,6 @@ protected:
   int n_layers;
 };//end class SdA
 }//end namespace dlpc
+
+#include <SdA.cpp>
 #endif

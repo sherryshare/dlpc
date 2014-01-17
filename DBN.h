@@ -5,19 +5,24 @@
 #include "LogisticRegression.h"
 #include <stdlib.h>
 #include <stdio.h>
+
+
 namespace dlpc
 {
+template<class T>
   class RBM;
+template<class T1, class T2>
   class LogisticRegression;
+template<class T>
   class HiddenLayer;
+template<class T1, class T2>
 class DBN {
-
 public:
   DBN(int, int, int*, int, int);
   ~DBN();
-  void pretrain(int*, double, int, int);
-  void finetune(int*, int*, double, int);
-  void predict(int*, double*);
+  void pretrain(T1*, double, int, int);
+  void finetune(T1*, T2*, double, int);
+  void predict(T1*, double*);
   
 protected:
   int batch_size;
@@ -25,10 +30,11 @@ protected:
   int *hidden_layer_sizes;
   int n_outs;
   int n_layers;
-  HiddenLayer **sigmoid_layers;
-  RBM **rbm_layers;
-  LogisticRegression *log_layer;
+  HiddenLayer<T1> **sigmoid_layers;
+  RBM<T1> **rbm_layers;
+  LogisticRegression<T1,T2> *log_layer;
 };//end class DBN
 }//end namespace dlpc
 
+#include <DBN.cpp>
 #endif

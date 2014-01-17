@@ -1,21 +1,24 @@
 #ifndef DLPC_RBM_H_
 #define DLPC_RBM_H_
 #include "utils.h"
+
+
 namespace dlpc
 {
+  template<class T> 
 class RBM {
 public:
   RBM(int, int, int, double**, double*, double*);
   ~RBM();
-  void contrastive_divergence(int*, double, int);
+  void contrastive_divergence(T*, double, int);
 
-  void reconstruct(int*, double*);
+  void reconstruct(T*, double*);
 protected:
-  void sample_h_given_v(int*, double*, int*);
-  void sample_v_given_h(int*, double*, int*);
-  double propup(int*, double*, double);
-  double propdown(int*, int, double);
-  void gibbs_hvh(int*, double*, int*, double*, int*);
+  void sample_h_given_v(T*, double*, T*);
+  void sample_v_given_h(T*, double*, T*);
+  double propup(T*, double*, double);
+  double propdown(T*, int, double);
+  void gibbs_hvh(T*, double*, T*, double*, T*);
 protected:
   int batch_size;
   int n_visible;
@@ -26,5 +29,6 @@ protected:
 };//end class RBM
 }//end namespace dlpc
 
+#include <RBM.cpp>
 #endif
 

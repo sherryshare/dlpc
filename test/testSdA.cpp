@@ -47,7 +47,7 @@ void test_sda() {
   };
 
   // construct SdA
-  SdA sda(train_N, n_ins, hidden_layer_sizes, n_outs, n_layers);
+  SdA<int,int> sda(train_N, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
   // pretrain
   sda.pretrain(*train_X, pretrain_lr, corruption_level, pretraining_epochs);

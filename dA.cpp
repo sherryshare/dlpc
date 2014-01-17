@@ -23,9 +23,12 @@
    Training of Deep Networks, Advances in Neural Information Processing
    Systems 19, 2007
       */
+#ifndef DLPC_DA_CPP_
+#define DLPC_DA_CPP_
 #include "dA.h"
 namespace dlpc{
-dA::dA(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
+template<class T>
+dA<T>::dA(int size, int n_v, int n_h, double **w, double *hb, double *vb) 
   :N(size),n_visible(n_v),n_hidden(n_h)
 
 {
@@ -58,7 +61,8 @@ dA::dA(int size, int n_v, int n_h, double **w, double *hb, double *vb)
   }
 }
 
-dA::~dA() {
+template<class T>
+dA<T>::~dA() {
   /*for(int i=0; i<n_hidden; i++) 
 	delete[] W[i];  
   delete[] W;
@@ -66,7 +70,8 @@ dA::~dA() {
   delete[] vbias;
 }
 
-void dA::get_corrupted_input(int *x, int *tilde_x, double p) {
+template<class T>
+void dA<T>::get_corrupted_input(T *x, T *tilde_x, double p) {
   for(int i=0; i<n_visible; i++) {
     if(x[i] == 0) {
       tilde_x[i] = 0;
@@ -77,7 +82,8 @@ void dA::get_corrupted_input(int *x, int *tilde_x, double p) {
 }
 
 // Encode
-void dA::get_hidden_values(int *x, double *y) {
+template<class T>
+void dA<T>::get_hidden_values(T *x, double *y) {
   for(int i=0; i<n_hidden; i++) {
     y[i] = 0;
     for(int j=0; j<n_visible; j++) {
@@ -89,7 +95,8 @@ void dA::get_hidden_values(int *x, double *y) {
 }
 
 // Decode
-void dA::get_reconstructed_input(double *y, double *z) {
+template<class T>
+void dA<T>::get_reconstructed_input(double *y, double *z) {
   for(int i=0; i<n_visible; i++) {
     z[i] = 0;
     for(int j=0; j<n_hidden; j++) {
@@ -100,8 +107,9 @@ void dA::get_reconstructed_input(double *y, double *z) {
   }
 }
 
-void dA::train(int *x, double lr, double corruption_level) {
-  int *tilde_x = new int[n_visible];
+template<class T>
+void dA<T>::train(T *x, double lr, double corruption_level) {
+  T *tilde_x = new T[n_visible];
   double *y = new double[n_hidden];
   double *z = new double[n_visible];
 
@@ -145,7 +153,8 @@ void dA::train(int *x, double lr, double corruption_level) {
   delete[] tilde_x;
 }
 
-void dA::reconstruct(int *x, double *z) {
+template<class T>
+void dA<T>::reconstruct(T *x, double *z) {
   double *y = new double[n_hidden];
 
   get_hidden_values(x, y);
@@ -155,3 +164,5 @@ void dA::reconstruct(int *x, double *z) {
 }
 
 }//end namespace dlpc
+
+#endif

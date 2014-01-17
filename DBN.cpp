@@ -1,14 +1,18 @@
+#ifndef DLPC_DBN_CPP_
+#define DLPC_DBN_CPP_
 #include "DBN.h"
+
 namespace dlpc
 {
 // DBN
-DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l)
+template<class T1, class T2>
+DBN<T1,T2>::DBN(int size, int n_i, int *hls, int n_o, int n_l)
   :batch_size(size),n_ins(n_i),hidden_layer_sizes(hls),n_outs(n_o),n_layers(n_l)
 {
   int input_size;
 
-  sigmoid_layers = new HiddenLayer*[n_layers];//n_layers HiddenLayer
-  rbm_layers = new RBM*[n_layers];
+  sigmoid_layers = new HiddenLayer<T1>*[n_layers];//n_layers HiddenLayer
+  rbm_layers = new RBM<T1>*[n_layers];
 
   // construct multi-layer
   for(int i=0; i<n_layers; i++) {
@@ -19,18 +23,19 @@ DBN::DBN(int size, int n_i, int *hls, int n_o, int n_l)
     }
 
     // construct sigmoid_layer//output size equals node size
-    sigmoid_layers[i] = new HiddenLayer(batch_size, input_size, hidden_layer_sizes[i], NULL, NULL);
+    sigmoid_layers[i] = new HiddenLayer<T1>(batch_size, input_size, hidden_layer_sizes[i], NULL, NULL);
 
     // construct rbm_layer
-    rbm_layers[i] = new RBM(batch_size, input_size, hidden_layer_sizes[i],
+    rbm_layers[i] = new RBM<T1>(batch_size, input_size, hidden_layer_sizes[i],
                             sigmoid_layers[i]->W, sigmoid_layers[i]->b, NULL);
   }
 
   // layer for output using LogisticRegression
-  log_layer = new LogisticRegression(batch_size, hidden_layer_sizes[n_layers-1], n_outs);
+  log_layer = new LogisticRegression<T1,T2>(batch_size, hidden_layer_sizes[n_layers-1], n_outs);
 }
 
-DBN::~DBN() {
+template<class T1, class T2>
+DBN<T1,T2>::~DBN() {
   delete log_layer;
 
   for(int i=0; i<n_layers; i++) {
@@ -41,13 +46,13 @@ DBN::~DBN() {
   delete[] rbm_layers;
 }
 
-
-void DBN::pretrain(int *input, double lr, int k, int epochs) {
-  int *layer_input;
+template<class T1, class T2>
+void DBN<T1,T2>::pretrain(T1 *input, double lr, int k, int epochs) {
+  T1 *layer_input;
   int prev_layer_input_size;
-  int *prev_layer_input;
+  T1 *prev_layer_input;
 
-  int *train_X = new int[n_ins];
+  T1 *train_X = new T1[n_ins];
 
   for(int i=0; i<n_layers; i++) {  // layer-wise
 
@@ -61,17 +66,17 @@ void DBN::pretrain(int *input, double lr, int k, int epochs) {
         for(int l=0; l<=i; l++) {
 
           if(l == 0) {
-            layer_input = new int[n_ins];
+            layer_input = new T1[n_ins];
             for(int j=0; j<n_ins; j++) layer_input[j] = train_X[j];
           } else {
             if(l == 1) prev_layer_input_size = n_ins;
             else prev_layer_input_size = hidden_layer_sizes[l-2];
 
-            prev_layer_input = new int[prev_layer_input_size];
+            prev_layer_input = new T1[prev_layer_input_size];
             for(int j=0; j<prev_layer_input_size; j++) prev_layer_input[j] = layer_input[j];//record the prev_layer_input vector
             delete[] layer_input;
 
-            layer_input = new int[hidden_layer_sizes[l-1]];
+            layer_input = new T1[hidden_layer_sizes[l-1]];
 
             sigmoid_layers[l-1]->sample_h_given_v(prev_layer_input, layer_input);//get the new hidden layer values
             delete[] prev_layer_input;
@@ -88,13 +93,14 @@ void DBN::pretrain(int *input, double lr, int k, int epochs) {
   delete[] layer_input;
 }
 
-void DBN::finetune(int *input, int *label, double lr, int epochs) {
-  int *layer_input;
+template<class T1, class T2>
+void DBN<T1,T2>::finetune(T1 *input, T2 *label, double lr, int epochs) {
+  T1 *layer_input;
   // int prev_layer_input_size;
-  int *prev_layer_input;
+  T1 *prev_layer_input;
 
-  int *train_X = new int[n_ins];
-  int *train_Y = new int[n_outs];
+  T1 *train_X = new T1[n_ins];
+  T2 *train_Y = new T2[n_outs];
 
   for(int epoch=0; epoch<epochs; epoch++) {
     for(int n=0; n<batch_size; n++) { // input x1...xbatch_size
@@ -105,16 +111,16 @@ void DBN::finetune(int *input, int *label, double lr, int epochs) {
       // layer input
       for(int i=0; i<n_layers; i++) {
         if(i == 0) {
-          prev_layer_input = new int[n_ins];
+          prev_layer_input = new T1[n_ins];
           for(int j=0; j<n_ins; j++) prev_layer_input[j] = train_X[j];
         } else {
-          prev_layer_input = new int[hidden_layer_sizes[i-1]];
+          prev_layer_input = new T1[hidden_layer_sizes[i-1]];
           for(int j=0; j<hidden_layer_sizes[i-1]; j++) prev_layer_input[j] = layer_input[j];
           delete[] layer_input;
         }
 
 
-        layer_input = new int[hidden_layer_sizes[i]];
+        layer_input = new T1[hidden_layer_sizes[i]];
         sigmoid_layers[i]->sample_h_given_v(prev_layer_input, layer_input);
         delete[] prev_layer_input;
       }
@@ -129,7 +135,8 @@ void DBN::finetune(int *input, int *label, double lr, int epochs) {
   delete[] train_Y;
 }
 
-void DBN::predict(int *x, double *y) {
+template<class T1, class T2>
+void DBN<T1,T2>::predict(T1 *input, double *y) {
   double *layer_input;
   // int prev_layer_input_size;
   double *prev_layer_input;
@@ -137,7 +144,7 @@ void DBN::predict(int *x, double *y) {
   double linear_output;
 
   prev_layer_input = new double[n_ins];
-  for(int j=0; j<n_ins; j++) prev_layer_input[j] = x[j];
+  for(int j=0; j<n_ins; j++) prev_layer_input[j] = input[j];
 
   // layer activation
   for(int i=0; i<n_layers; i++) {
@@ -176,3 +183,5 @@ void DBN::predict(int *x, double *y) {
 }
 
 }//end namespace dlpc
+
+#endif

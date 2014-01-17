@@ -39,7 +39,7 @@ void test_dbn() {
 
   
   // construct DBN
-  DBN dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
+  DBN<int,int> dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
   // pretrain
   dbn.pretrain(*train_X, pretrain_lr, k, pretraining_epochs);
