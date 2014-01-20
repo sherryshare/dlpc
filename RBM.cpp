@@ -48,11 +48,11 @@ RBM<T>::~RBM() {
 template<class T> 
 void RBM<T>::contrastive_divergence(T *input, double lr, int k) {//lr learning rate
   double *ph_mean = new double[n_hidden];//sigmoid first h
-  int *ph_sample = new int[n_hidden];//binary first h
+  T *ph_sample = new T[n_hidden];//binary first h
   double *nv_means = new double[n_visible];//sigmoid v
-  int *nv_samples = new int[n_visible];//binary v
+  T *nv_samples = new T[n_visible];//binary v
   double *nh_means = new double[n_hidden];//sigmoid other h
-  int *nh_samples = new int[n_hidden];//binary other h
+  T *nh_samples = new T[n_hidden];//binary other h
 
   /* CD-k */
   sample_h_given_v(input, ph_mean, ph_sample);//in,out,out

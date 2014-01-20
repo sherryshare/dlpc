@@ -3,8 +3,9 @@
 #include "RBM.h"
 #include "HiddenLayer.h"
 #include "LogisticRegression.h"
-#include <stdlib.h>
-#include <stdio.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+#include <iostream>
 
 
 namespace dlpc

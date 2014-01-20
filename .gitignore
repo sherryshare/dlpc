@@ -17,3 +17,5 @@
 *.aux
 *.log
 .directory
+
+*set*txt

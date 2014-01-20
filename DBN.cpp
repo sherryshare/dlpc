@@ -145,6 +145,7 @@ void DBN<T1,T2>::predict(T1 *input, double *y) {
 
   prev_layer_input = new double[n_ins];
   for(int j=0; j<n_ins; j++) prev_layer_input[j] = input[j];
+  
 
   // layer activation
   for(int i=0; i<n_layers; i++) {
@@ -178,8 +179,8 @@ void DBN<T1,T2>::predict(T1 *input, double *y) {
   
   log_layer->softmax(y);
 
-
-  delete[] layer_input;
+  if(layer_input != NULL)
+    delete[] layer_input;
 }
 
 }//end namespace dlpc
