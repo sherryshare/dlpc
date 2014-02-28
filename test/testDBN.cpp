@@ -47,7 +47,16 @@ void test_dbn() {
   // finetune
   dbn.finetune(*train_X, *train_Y, finetune_lr, finetune_epochs);
   
-
+//   dbn.pretrain(*train_X, pretrain_lr, k, pretraining_epochs);
+//   
+//   dbn.finetune(*train_X, *train_Y, finetune_lr, finetune_epochs);
+//   
+//   dbn.pretrain(*train_X, pretrain_lr, k, pretraining_epochs);
+//   
+//   dbn.finetune(*train_X, *train_Y, finetune_lr, finetune_epochs);
+//   
+  
+  
   // test data
   int test_X[3][6] = {
     {1, 1, 0, 0, 0, 0},

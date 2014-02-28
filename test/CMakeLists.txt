@@ -13,10 +13,10 @@ include_directories(${PROJECT_SOURCE_DIR} ${DLPC_ROOT_DIR})
 link_directories(${DLPC_ROOT_DIR}/lib)
 
 
-#set(src testDBN.cpp)
+set(src testDBN.cpp)
 #set(src testRBM.cpp)
 #set(src testdA.cpp)
-set(src testSdA.cpp)
+#set(src testSdA.cpp)
 #set(src testLR.cpp)
 
 add_executable(test ${src})
