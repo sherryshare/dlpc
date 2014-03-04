@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 MESSAGE(STATUS "This is SOURCE dir" ${PROJECT_SOURCE_DIR})
 PROJECT(test)
-
+add_definitions(-std=c++11)
 
 
 set(DLPC_ROOT_DIR /home/sherry/dlpc)
