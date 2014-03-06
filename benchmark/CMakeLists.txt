@@ -4,7 +4,7 @@ PROJECT(test)
 add_definitions(-std=c++11)
 
 
-set(DLPC_ROOT_DIR /home/sherry/dlpc)
+set(DLPC_ROOT_DIR ${PROJECT_SOURCE_DIR}/../)
 
 
 

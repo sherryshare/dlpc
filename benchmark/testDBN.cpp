@@ -72,7 +72,11 @@ void deleteArray(T ** array, int row)
 
 void decimalToBinary(int *** array,int bin_size,int row_y, int & col_y)
 {
-    if(col_y != 1) return;
+    cout << "decimalToBinary:" << endl;
+    if(col_y != 1){
+      cout << "col_y = " << col_y << endl;
+      return;
+    }
     int ** bin_array = new int*[row_y];
     for(int i=0; i<row_y; i++)
     {
@@ -92,6 +96,7 @@ void decimalToBinary(int *** array,int bin_size,int row_y, int & col_y)
 template<class T>
 void binaryToDecimal(T *** array,int dec_size,int bin_size,int row_y)
 {
+    cout << "binaryToDecimal:" << endl;
     T ** dec_array = new T*[row_y];
     for(int i=0; i<row_y; i++)
     {
@@ -170,16 +175,33 @@ void test_dbn() {
 //     int ** valid_y_batch = VecToArray<int>(m_valid_y,valid_batch_size,n_valid_y,col_y);
 //     cout << "valid_y remain size = " << m_valid_y.size() << endl;
 
+
+    //Read test batch
+    cout << "test_x origin size = " << m_test_x.size() << endl;
+    double ** test_x_batch = VecToArray<double>(m_test_x,test_batch_size,n_test_x,col_x);
+    cout << "test_x remain size = " << m_test_x.size() << endl;
+
+    cout << "test_y origin size = " << m_test_y.size() << endl;
+    int ** test_y_batch = VecToArray<int>(m_test_y,test_batch_size,n_test_y,col_y);
+    cout << "test_y remain size = " << m_test_y.size() << endl;
+    cout << "n_test_y = " << n_test_y << " col_y = " << col_y << endl;
+
+    
+
+
+
+
     int elapsed_seconds;
-    chrono::time_point<chrono::system_clock> start, end;    
+    chrono::time_point<chrono::system_clock> start, end;
     start = chrono::system_clock::now();
 
     // construct DBN
     DBN<double,int> dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
-
+    int i = 0;
     while(m_train_x.size()!=0)
     {
+	cout << i++ << ":" << endl;
         // Read train batch
         cout << "train_x origin size = " << m_train_x.size() << endl;
         double ** train_x_batch = VecToArray<double>(m_train_x,train_batch_size,n_train_x,col_x);
@@ -200,8 +222,31 @@ void test_dbn() {
         deleteArray<double>(train_x_batch,n_train_x);
         deleteArray<int>(train_y_batch,n_train_y);
 	
-	//test 1 batch
-	break;
+	
+	cout << "Start test:" << endl;
+	col_y = 1;
+	decimalToBinary(&test_y_batch,n_outs,n_test_y,col_y);//change test_y_batch and col_y
+        //malloc test_Y
+        double ** test_Y = new double*[n_test_y];
+        for(int i=0; i<n_test_y; i++) test_Y[i] = new double[n_outs];
+	
+	
+        // test
+        cout << "Test results:" << endl;
+        for(int i=0; i<test_batch_size; i++) {
+            dbn.predict(test_x_batch[i], test_Y[i]);
+        }
+        cout << "predict end" << endl;
+
+        binaryToDecimal<int>(&test_y_batch,1,n_outs,n_test_y);
+        binaryToDecimal<double>(&test_Y,1,n_outs,n_test_y);
+
+        for(int i=0; i<test_batch_size; i++) {
+            cout << test_Y[i][0] << "\t";
+            cout << "real=" << test_y_batch[i][0] << "\t";
+            cout << endl;
+        }
+        deleteArray<double>(test_Y,test_batch_size);
     }
 
     end = chrono::system_clock::now();
@@ -209,49 +254,49 @@ void test_dbn() {
                       (end-start).count();
     cout << "training time = " << elapsed_seconds/(1000000*60) << "min" << endl;
 
-    //Read test batch
-    cout << "test_x origin size = " << m_test_x.size() << endl;
-    double ** test_x_batch = VecToArray<double>(m_test_x,test_batch_size,n_test_x,col_x);
-    cout << "test_x remain size = " << m_test_x.size() << endl;
+//     //Read test batch
+//     cout << "test_x origin size = " << m_test_x.size() << endl;
+//     double ** test_x_batch = VecToArray<double>(m_test_x,test_batch_size,n_test_x,col_x);
+//     cout << "test_x remain size = " << m_test_x.size() << endl;
+//
+//     cout << "test_y origin size = " << m_test_y.size() << endl;
+//     int ** test_y_batch = VecToArray<int>(m_test_y,test_batch_size,n_test_y,col_y);
+//     cout << "test_y remain size = " << m_test_y.size() << endl;
+//     cout << "n_test_y = " << n_test_y << " col_y = " << col_y << endl;
+//
+//     decimalToBinary(&test_y_batch,n_outs,n_test_y,col_y);//change test_y_batch and col_y
 
-    cout << "test_y origin size = " << m_test_y.size() << endl;
-    int ** test_y_batch = VecToArray<int>(m_test_y,test_batch_size,n_test_y,col_y);
-    cout << "test_y remain size = " << m_test_y.size() << endl;
-    cout << "n_test_y = " << n_test_y << " col_y = " << col_y << endl;
-
-    decimalToBinary(&test_y_batch,n_outs,n_test_y,col_y);//change test_y_batch and col_y
-
-    //malloc test_Y
-    double ** test_Y = new double*[n_test_y];
-    for(int i=0; i<n_test_y; i++) test_Y[i] = new double[n_outs];
-
-    // test
-    cout << "Test results:" << endl;
-    for(int i=0; i<test_batch_size; i++) {
-        dbn.predict(test_x_batch[i], test_Y[i]);
-//             cout << "predict end" << endl;
-//             for(int j=0; j<n_outs; j++) {
-//                 cout << test_Y[i][j] << "\t";
-//                 cout << "real=" << test_y_batch[i][j] << "\t";
-//             }
-//             std::cout << std::endl;
-    }
-    cout << "predict end" << endl;
-
-    binaryToDecimal<int>(&test_y_batch,1,n_outs,n_test_y);
-    binaryToDecimal<double>(&test_Y,1,n_outs,n_test_y);
-
-    for(int i=0; i<test_batch_size; i++) {
-        cout << test_Y[i][0] << "\t";
-        cout << "real=" << test_y_batch[i][0] << "\t";
-        cout << endl;
-    }
+//     //malloc test_Y
+//     double ** test_Y = new double*[n_test_y];
+//     for(int i=0; i<n_test_y; i++) test_Y[i] = new double[n_outs];
+//
+//     // test
+//     cout << "Test results:" << endl;
+//     for(int i=0; i<test_batch_size; i++) {
+//         dbn.predict(test_x_batch[i], test_Y[i]);
+// //             cout << "predict end" << endl;
+// //             for(int j=0; j<n_outs; j++) {
+// //                 cout << test_Y[i][j] << "\t";
+// //                 cout << "real=" << test_y_batch[i][j] << "\t";
+// //             }
+// //             std::cout << std::endl;
+//     }
+//     cout << "predict end" << endl;
+//
+//     binaryToDecimal<int>(&test_y_batch,1,n_outs,n_test_y);
+//     binaryToDecimal<double>(&test_Y,1,n_outs,n_test_y);
+//
+//     for(int i=0; i<test_batch_size; i++) {
+//         cout << test_Y[i][0] << "\t";
+//         cout << "real=" << test_y_batch[i][0] << "\t";
+//         cout << endl;
+//     }
 
 
     //delete
     deleteArray<double>(test_x_batch,n_test_x);
     deleteArray<int>(test_y_batch,n_test_y);
-    deleteArray<double>(test_Y,test_batch_size);
+//     deleteArray<double>(test_Y,test_batch_size);
 }
 
 int main(int argc, char **argv) {
