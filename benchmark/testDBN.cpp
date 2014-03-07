@@ -208,7 +208,7 @@ void test_dbn() {
     cout << "vector m_test_y capacity:" << m_test_y.capacity() << endl;
 
 
-    int elapsed_seconds;
+    int elapsed_time;
     chrono::time_point<chrono::system_clock> start, end;
     start = chrono::system_clock::now();
 
@@ -279,16 +279,15 @@ void test_dbn() {
         deleteArray<double>(test_Y,test_batch_size);
 
         chrono::time_point<chrono::system_clock> curTime = chrono::system_clock::now();
-        elapsed_seconds = std::chrono::duration_cast<chrono::microseconds>
-                          (curTime-start).count();
-        cout << "training time = " << elapsed_seconds/(1000000*60) << "min" << endl;
-
+        elapsed_time = std::chrono::duration_cast<chrono::minutes>
+                       (curTime-start).count();
+        cout << "training time = " << elapsed_time << "mins" << endl;
     }
 
     end = chrono::system_clock::now();
-    elapsed_seconds = std::chrono::duration_cast<chrono::microseconds>
-                      (end-start).count();
-    cout << "training time = " << elapsed_seconds/(1000000*60) << "min" << endl;
+    elapsed_time = std::chrono::duration_cast<chrono::minutes>
+                   (end-start).count();
+    cout << "training time = " << elapsed_time << "mins" << endl;
 
 //     //Read test batch
 //     cout << "test_x origin size = " << m_test_x.size() << endl;
