@@ -73,9 +73,9 @@ void deleteArray(T ** array, int row)
 void decimalToBinary(int *** array,int bin_size,int row_y, int & col_y)
 {
     cout << "decimalToBinary:" << endl;
-    if(col_y != 1){
-      cout << "col_y = " << col_y << endl;
-      return;
+    if(col_y != 1) {
+        cout << "col_y = " << col_y << endl;
+        return;
     }
     int ** bin_array = new int*[row_y];
     for(int i=0; i<row_y; i++)
@@ -115,6 +115,13 @@ void binaryToDecimal(T *** array,int dec_size,int bin_size,int row_y)
     *array = dec_array;
 }
 
+template<class T>
+void ClearVector(vector< T >& vt)
+//Used to release spare capacity for vector
+{
+    vector< T > vtTemp = vt;
+    vtTemp.swap(vt);
+}
 
 void test_dbn() {
     srand(0);
@@ -139,8 +146,8 @@ void test_dbn() {
 //     string valid_y_file = "../data/valid_set_y.txt";
     string test_x_file = "../data/test_set_x.txt";
     string test_y_file = "../data/test_set_y.txt";
-    vector<vector<double> > m_train_x, m_valid_x, m_test_x;
-    vector<vector<int> > m_train_y, m_valid_y, m_test_y;
+    vector<vector<double> > m_train_x, m_test_x;//m_valid_x
+    vector<vector<int> > m_train_y, m_test_y;//m_valid_y
     ReadData<double>(train_x_file,m_train_x);
     ReadData<int>(train_y_file,m_train_y);
 //     ReadData<double>(valid_x_file,m_valid_x);
@@ -155,7 +162,8 @@ void test_dbn() {
     cout << "test_set_y size = [" << m_test_y.size() << ", " << m_test_y[0].size() << "]" << endl;
 
 
-    int n_train_x,n_train_y,n_valid_x,n_valid_y,n_test_x,n_test_y,col_x,col_y;
+
+    int n_train_x,n_train_y,n_test_x,n_test_y,col_x,col_y;//,n_valid_x,n_valid_y
 
 //     // Read train batch
 //     cout << "train_x origin size = " << m_train_x.size() << endl;
@@ -186,9 +194,18 @@ void test_dbn() {
     cout << "test_y remain size = " << m_test_y.size() << endl;
     cout << "n_test_y = " << n_test_y << " col_y = " << col_y << endl;
 
-    
+    //Free unused vector. Need to free now. 20140307.
+    m_test_x.clear();
+    m_test_y.clear();
 
+    cout << "vector m_test_x capacity:" << m_test_x.capacity() << endl;
+    cout << "vector m_test_y capacity:" << m_test_y.capacity() << endl;
 
+    ClearVector<vector<double> >(m_test_x);
+    ClearVector<vector<int> >(m_test_y);
+
+    cout << "vector m_test_x capacity:" << m_test_x.capacity() << endl;
+    cout << "vector m_test_y capacity:" << m_test_y.capacity() << endl;
 
 
     int elapsed_seconds;
@@ -198,10 +215,9 @@ void test_dbn() {
     // construct DBN
     DBN<double,int> dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
-    int i = 0;
-    while(m_train_x.size()!=0)
+    for(int i = 0; m_train_x.size()!=0; i++)
     {
-	cout << i++ << ":" << endl;
+        cout << i << ":" << endl;
         // Read train batch
         cout << "train_x origin size = " << m_train_x.size() << endl;
         double ** train_x_batch = VecToArray<double>(m_train_x,train_batch_size,n_train_x,col_x);
@@ -211,26 +227,40 @@ void test_dbn() {
         int ** train_y_batch = VecToArray<int>(m_train_y,train_batch_size,n_train_y,col_y);
         cout << "train_y remain size = " << m_train_y.size() << endl;
 
+        //Free unused vector -in fact, it frees the whole capacity.
+        if(!(i%50)) {
+            cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
+            cout << "vector m_train_y capacity=" << m_train_y.capacity() << " size=" << m_train_y.size() << endl;
+
+            ClearVector<vector<double> >(m_train_x);
+            ClearVector<vector<int> >(m_train_y);
+
+            cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
+            cout << "vector m_train_y capacity=" << m_train_y.capacity() << " size=" << m_train_y.size() << endl;
+        }
+
+
         decimalToBinary(&train_y_batch,n_outs,n_train_y,col_y);//change train_y_batch and col_y
 
+        cout << "start pretrain:" << endl;
         // pretrain
         dbn.pretrain(*train_x_batch, pretrain_lr, k, pretraining_epochs);
 
+        cout << "start finetune:" << endl;
         // finetune
         dbn.finetune(*train_x_batch, *train_y_batch, finetune_lr, finetune_epochs);
 
         deleteArray<double>(train_x_batch,n_train_x);
         deleteArray<int>(train_y_batch,n_train_y);
-	
-	
-	cout << "Start test:" << endl;
-	col_y = 1;
-	decimalToBinary(&test_y_batch,n_outs,n_test_y,col_y);//change test_y_batch and col_y
+
+
+        cout << "Start test:" << endl;
+        col_y = 1;
+        decimalToBinary(&test_y_batch,n_outs,n_test_y,col_y);//change test_y_batch and col_y
         //malloc test_Y
         double ** test_Y = new double*[n_test_y];
         for(int i=0; i<n_test_y; i++) test_Y[i] = new double[n_outs];
-	
-	
+
         // test
         cout << "Test results:" << endl;
         for(int i=0; i<test_batch_size; i++) {
@@ -247,6 +277,12 @@ void test_dbn() {
             cout << endl;
         }
         deleteArray<double>(test_Y,test_batch_size);
+
+        chrono::time_point<chrono::system_clock> curTime = chrono::system_clock::now();
+        elapsed_seconds = std::chrono::duration_cast<chrono::microseconds>
+                          (curTime-start).count();
+        cout << "training time = " << elapsed_seconds/(1000000*60) << "min" << endl;
+
     }
 
     end = chrono::system_clock::now();
