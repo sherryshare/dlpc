@@ -130,7 +130,7 @@ void test_dbn() {
     int pretraining_epochs = 100;
     int k = 1;//CD-k
     double finetune_lr = 0.1;
-    int finetune_epochs = 1000;//training_epochs=1000?
+    int finetune_epochs = 1000;//training_epochs=1000 in DBN.py
 
     int train_batch_size = 10,valid_batch_size = 10;//?//training inputs vector number
     int test_batch_size = 10;//testing inputs vector number???
