@@ -127,7 +127,7 @@ void test_dbn() {
     srand(0);
 
     double pretrain_lr = 0.01;//learning rate
-    int pretraining_epochs = 10;//1000
+    int pretraining_epochs = 20;//100
     int k = 1;//CD-k
     double finetune_lr = 0.1;
     int finetune_epochs = 20;//training_epochs=1000 in DBN.py
