@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 #include <stdio.h>
+#include <time.h>
 #define RATE 0.7
 
 
@@ -124,7 +125,7 @@ void ClearVector(vector< T >& vt)
 }
 
 void test_dbn() {
-//     srand(0);
+    srand(time(NULL));
 
     double pretrain_lr = 0.01;//learning rate
     int pretraining_epochs = 20;//100
