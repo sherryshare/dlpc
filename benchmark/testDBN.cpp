@@ -124,7 +124,7 @@ void ClearVector(vector< T >& vt)
 }
 
 void test_dbn() {
-    srand(0);
+//     srand(0);
 
     double pretrain_lr = 0.01;//learning rate
     int pretraining_epochs = 20;//100

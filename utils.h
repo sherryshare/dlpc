@@ -2,9 +2,11 @@
 #define DLPC_UTILS_H
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 namespace dlpc
 {
 inline double uniform(double min, double max) {
+  srand(time(NULL));
   return rand() / (RAND_MAX + 1.0) * (max - min) + min;
 }
 
@@ -15,6 +17,7 @@ inline int binomial(int n, double p) {
   double r;
   
   for(int i=0; i<n; i++) {
+    srand(time(NULL));
     r = rand() / (RAND_MAX + 1.0);
     if (r < p) c++;
   }
