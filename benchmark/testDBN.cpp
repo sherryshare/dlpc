@@ -127,10 +127,10 @@ void test_dbn() {
     srand(0);
 
     double pretrain_lr = 0.01;//learning rate
-    int pretraining_epochs = 100;
+    int pretraining_epochs = 10;//1000
     int k = 1;//CD-k
     double finetune_lr = 0.1;
-    int finetune_epochs = 1000;//training_epochs=1000 in DBN.py
+    int finetune_epochs = 20;//training_epochs=1000 in DBN.py
 
     int train_batch_size = 10,valid_batch_size = 10;//?//training inputs vector number
     int test_batch_size = 10;//testing inputs vector number???
@@ -232,7 +232,7 @@ void test_dbn() {
             cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
             cout << "vector m_train_y capacity=" << m_train_y.capacity() << " size=" << m_train_y.size() << endl;
 
-            ClearVector<vector<double> >(m_train_x);
+            //ClearVector<vector<double> >(m_train_x);
             ClearVector<vector<int> >(m_train_y);
 
             cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
