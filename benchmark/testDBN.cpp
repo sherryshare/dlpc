@@ -42,7 +42,7 @@ int ReadData(string fileName, vector<vector<T> > & matrix) { //reads from file c
 }
 
 template<class T>
-T ** VecToArray(vector<vector<T> > & m,int batchSize, int & rowNum, int & colNum)
+T ** VecToArray(vector<vector<T> > & m,int batchSize, int & rowNum, int & colNum, int start = -1)
 {
     rowNum = (batchSize > m.size())? m.size():batchSize;
     colNum = m[0].size();
@@ -51,12 +51,16 @@ T ** VecToArray(vector<vector<T> > & m,int batchSize, int & rowNum, int & colNum
     vector<T> curLine;
     for(int i = 0; i < rowNum ; i++)
     {
-        curLine = m.back();
+	if(start >= 0)
+	  curLine = m[start + i];
+	else
+	  curLine = m.back();
         for(int j = 0; j < colNum; j++)
         {
             array[i][j] = curLine[j];
         }
-        m.pop_back();
+        if(start == -1)
+	  m.pop_back();
     }
     return array;
 }
@@ -147,7 +151,7 @@ void test_dbn() {
 //     string valid_y_file = "../data/valid_set_y.txt";
     string test_x_file = "../data/test_set_x.txt";
     string test_y_file = "../data/test_set_y.txt";
-    vector<vector<double> > m_train_x, m_test_x;//m_valid_x
+    vector<vector<double> > m_train_x,m_train_x_copy, m_test_x;//m_valid_x
     vector<vector<int> > m_train_y, m_test_y;//m_valid_y
     ReadData<double>(train_x_file,m_train_x);
     ReadData<int>(train_y_file,m_train_y);
@@ -216,9 +220,32 @@ void test_dbn() {
     // construct DBN
     DBN<double,int> dbn(train_batch_size, n_ins, hidden_layer_sizes, n_outs, n_layers);
 
+    cout << "start pretrain:" << endl;
+    int max_loop = (m_train_x.size()/train_batch_size) + ((m_train_x.size() % train_batch_size) ? 1 : 0);
+    max_loop = 2;
+    cout << "max_loop = " << max_loop << endl;
+    for(int i = 0; i < max_loop; i++)
+    {
+        cout << "Pretrain " << i << ":" << endl;
+        // Read train batch
+        cout << "train_x origin size = " << m_train_x.size() << endl;
+        double ** train_x_batch = VecToArray<double>(m_train_x,train_batch_size,n_train_x,col_x,i*train_batch_size);
+        cout << "train_x remain size = " << m_train_x.size() << endl;
+            
+        // pretrain
+        dbn.pretrain(*train_x_batch, pretrain_lr, k, pretraining_epochs);
+        
+	deleteArray<double>(train_x_batch,n_train_x);
+        chrono::time_point<chrono::system_clock> curTime = chrono::system_clock::now();
+        elapsed_time = std::chrono::duration_cast<chrono::minutes>
+                       (curTime-start).count();
+        cout << "Pretrain time = " << elapsed_time << "mins" << endl;
+    }
+    
+    cout << "start finetune:" << endl;
     for(int i = 0; m_train_x.size()!=0; i++)
     {
-        cout << i << ":" << endl;
+        cout << "Finetune " << i << ":" << endl;
         // Read train batch
         cout << "train_x origin size = " << m_train_x.size() << endl;
         double ** train_x_batch = VecToArray<double>(m_train_x,train_batch_size,n_train_x,col_x);
@@ -230,24 +257,19 @@ void test_dbn() {
 
         //Free unused vector -in fact, it frees the whole capacity.
         if(!(i%50)) {
-            cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
+//             cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
             cout << "vector m_train_y capacity=" << m_train_y.capacity() << " size=" << m_train_y.size() << endl;
 
             //ClearVector<vector<double> >(m_train_x);
             ClearVector<vector<int> >(m_train_y);
 
-            cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
+//             cout << "vector m_train_x capacity=" << m_train_x.capacity() << " size=" << m_train_x.size() << endl;
             cout << "vector m_train_y capacity=" << m_train_y.capacity() << " size=" << m_train_y.size() << endl;
         }
 
 
         decimalToBinary(&train_y_batch,n_outs,n_train_y,col_y);//change train_y_batch and col_y
-
-        cout << "start pretrain:" << endl;
-        // pretrain
-        dbn.pretrain(*train_x_batch, pretrain_lr, k, pretraining_epochs);
-
-        cout << "start finetune:" << endl;
+        
         // finetune
         dbn.finetune(*train_x_batch, *train_y_batch, finetune_lr, finetune_epochs);
 
@@ -282,8 +304,11 @@ void test_dbn() {
         chrono::time_point<chrono::system_clock> curTime = chrono::system_clock::now();
         elapsed_time = std::chrono::duration_cast<chrono::minutes>
                        (curTime-start).count();
-        cout << "training time = " << elapsed_time << "mins" << endl;
+        cout << "finetune time = " << elapsed_time << "mins" << endl;
     }
+    
+    
+
 
     end = chrono::system_clock::now();
     elapsed_time = std::chrono::duration_cast<chrono::minutes>

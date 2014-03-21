@@ -25,6 +25,7 @@ HiddenLayer<T>::HiddenLayer(int size, int in, int out, double **w, double *bp)
 
   if(bp == NULL) {
     b = new double[n_out];
+    for(int i=0; i<n_out; i++) b[i] = 0;
   } else {
     b = bp;
   }
