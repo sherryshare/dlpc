@@ -222,7 +222,6 @@ void test_dbn() {
 
     cout << "start pretrain:" << endl;
     int max_loop = (m_train_x.size()/train_batch_size) + ((m_train_x.size() % train_batch_size) ? 1 : 0);
-    max_loop = 2;
     cout << "max_loop = " << max_loop << endl;
     for(int i = 0; i < max_loop; i++)
     {
